@@ -1,64 +1,124 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
+# Лабораторная работа №2. HTTP-запросы и шаблонизация в Laravel
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## Цель работы
 
-## About Laravel
+Изучить основные принципы работы с HTTP-запросами в Laravel и шаблонизацию с использованием Blade на основе
+веб-приложения **To-Do App для команд** — приложения для управления задачами внутри команды.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Описание приложения
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Приложение предназначено для команды, которая хочет управлять своими задачами, назначать их участникам, отслеживать
+статус и приоритет задач (похоже на Github Issues).
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Условия выполнения
 
-## Learning Laravel
+### №1. Подготовка к работе, установка Laravel
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+1. Создать новый проект Laravel с именем `todo-app`.
+2. Перейти в директорию проекта и запустить встроенный сервер Laravel.
+3. Проверить работу приложения в браузере по адресу [http://localhost:8000](http://localhost:8000).
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### №2. Настройка окружения
 
-## Laravel Sponsors
+1. Открыть файл `.env` и настроить параметры приложения:
+    - `APP_NAME=ToDoApp`
+    - `APP_ENV=local`
+    - `APP_KEY=`
+    - `APP_DEBUG=true`
+    - `APP_URL=http://localhost:8000`
+2. Сгенерировать ключ приложения.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+### №3. Основы работы с HTTP-запросами
 
-### Premium Partners
+#### №3.1. Создание маршрутов для главной страницы и страницы "О нас"
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+1. Создать класс-контроллер `HomeController` для обработки запросов на главную страницу.
+   ![Класс HomeController](images/1.png)
+2. Добавить метод `index` в `HomeController`.
+   ![Метод index](images/2.png)
+3. Создать маршрут для главной страницы и проверить его работу в браузере.
+   ![Проверка маршрута](images/3.png)
+   ![Проверка маршрута](images/4.png)
+4. Создать метод и маршрут для страницы "О нас".
+5. Добавьте маршрут для страницы "О нас" в файле routes/web.php. .
+   ![Страница "О нас"](images/5.png)
 
-## Contributing
+#### №3.2. Создание маршрутов для задач
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+1. Создать класс-контроллер `TaskController` с методами для обработки задач:
+    - `index`, `create`, `store`, `show`, `edit`, `update`, `destroy`.
+2. Определить маршруты для методов контроллера с использованием группирования и префикса `/tasks`.
+3. Добавить валидацию параметров маршрута `id`.
+4. Заменить ручное создание маршрутов на ресурсный контроллер.
 
-## Code of Conduct
+**Вопрос**: Объяснить разницу между ручным созданием маршрутов и использованием ресурсного контроллера.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## Ручное создание маршрутов требует явного определения каждого маршрута и метода контроллера, что может привести к дублированию кода, тогда как использование ресурсного контроллера автоматически генерирует маршруты для всех стандартных CRUD операций, упрощая структуру, повышая читаемость кода и снижая вероятность ошибок.
 
-## Security Vulnerabilities
+7. Проверьте созданные маршруты с помощью команды php artisan route:list.
+   вручную:
+   ![Метод index](images/6.png)
+   автоматически:
+   ![Метод index](images/7.png)
+   я заменила код чтобы было id
+   ![Метод index](images/8.png)
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### №4. Шаблонизация с использованием Blade
 
-## License
+#### №4.1. Создание макета страницы
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+1. Создать макет страницы `layouts/app.blade.php` с общими элементами.
+   ![Макет страницы](images/9.png)
+
+#### №4.2. Использование шаблонов Blade
+
+1. Создать представления для главной страницы и страницы "О нас":
+    - `home.blade.php`
+    - `about.blade.php`
+2. Создать представления для задач:
+    - `index.blade.php` — список задач;
+    - `show.blade.php` — отображение задачи.
+      ![INFO](images/9.1.png)
+      ![Список задач](images/10.png)
+      ![Отображение задачи](images/11.png)
+
+#### №4.3. Анонимные компоненты Blade
+
+1. Создать анонимные компоненты для отображения элементов интерфейса:
+    - `header` и `task`.
+      ![Анонимный компонент задачи](images/12.png)
+
+#### №4.4. Стилизация страниц
+
+1. Создать файл стилей `app.css` и подключить его к макету.
+   ![Стилизация страниц](images/13.png)
+   ![Пример стилей](images/14.png)
+
+### №5. Дополнительные задания
+
+1. Использовать View Composer для отображения последней созданной задачи на главной странице.
+2. Создать дополнительный анонимный компонент для отображения приоритета задачи с разными цветами или иконками.
+
+## Контрольные вопросы
+
+1. **Что такое ресурсный контроллер в Laravel и какие маршруты он создает?**  
+   Ресурсный контроллер в Laravel позволяет автоматически генерировать маршруты для стандартных операций CRUD (создание,
+   чтение, обновление, удаление) с помощью единственной команды, что упрощает управление маршрутами. Он создает маршруты
+   для отображения списка ресурсов, создания нового ресурса, отображения конкретного ресурса, редактирования ресурса и
+   удаления ресурса.
+
+2. **Объясните разницу между ручным созданием маршрутов и использованием ресурсного контроллера.**  
+   Ручное создание маршрутов требует явного определения каждого маршрута, что может привести к дублированию и усложнению
+   кода, тогда как ресурсный контроллер автоматически генерирует маршруты для стандартных операций, улучшая читаемость и
+   упрощая поддержку кода.
+
+3. **Какие преимущества предоставляет использование анонимных компонентов Blade?**  
+   Анонимные компоненты Blade позволяют создавать повторно используемые элементы интерфейса без необходимости явно
+   определять их в классе, что упрощает структуру и уменьшает объем кода. Они также способствуют более чистой и понятной
+   разметке, поскольку позволяют легче настраивать параметры и стили.
+
+4. **Какие методы HTTP-запросов используются для выполнения операций CRUD?**  
+   Для выполнения операций CRUD используются следующие методы HTTP-запросов: `GET` для чтения ресурсов, `POST` для
+   создания новых ресурсов, `PUT` или `PATCH` для обновления существующих ресурсов и `DELETE` для удаления ресурсов.
+
+
