@@ -1,30 +1,60 @@
-<!-- resources/views/tasks/edit.blade.php -->
-
 @extends('layouts.app')
 
 @section('content')
-    <h1>Редактирование задачи</h1>
+<div class="container">
+    <h1>Редактировать задачу: {{ $task->title }}</h1>
 
-    <form action="{{ route('tasks.update', $task['id']) }}" method="POST">
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    <form action="{{ route('tasks.update', $task->id) }}" method="POST">
         @csrf
         @method('PUT')
 
         <div class="form-group">
-            <label for="title">Название задачи</label>
-            <input type="text" id="title" name="title" class="form-control" value="{{ $task['title'] }}" required>
+            <label for="title">Название задачи:</label>
+            <input type="text" id="title" name="title" class="form-control" value="{{ old('title', $task->title) }}" required>
         </div>
 
         <div class="form-group">
-            <label for="description">Описание задачи</label>
-            <textarea id="description" name="description" class="form-control">{{ $task['description'] }}</textarea>
+            <label for="description">Описание:</label>
+            <textarea id="description" name="description" class="form-control">{{ old('description', $task->description) }}</textarea>
         </div>
 
-        <div class="form-group form-check">
-            <input type="checkbox" id="is_completed" name="is_completed" class="form-check-input" {{ $task['is_completed'] ? 'checked' : '' }}>
-            <label for="is_completed" class="form-check-label">Задача завершена</label>
+        <div class="form-group">
+            <label for="category_id">Категория:</label>
+            <select id="category_id" name="category_id" class="form-control" required>
+                <option value="">Выберите категорию</option>
+                @foreach($categories as $category)
+                    <option value="{{ $category->id }}" {{ $category->id == $task->category_id ? 'selected' : '' }}>
+                        {{ $category->name }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="tags">Теги:</label>
+            <select id="tags" name="tags[]" class="form-control" multiple>
+                @foreach($tags as $tag)
+                    <option value="{{ $tag->id }}" {{ $task->tags->contains($tag->id) ? 'selected' : '' }}>
+                        {{ $tag->name }}
+                    </option>
+                @endforeach
+            </select>
+            <small class="form-text text-muted">Удерживайте Ctrl (или Command на Mac), чтобы выбрать несколько тегов.</small>
         </div>
 
         <button type="submit" class="btn btn-primary">Обновить задачу</button>
-        <a href="{{ route('tasks.index') }}" class="btn btn-secondary">Отмена</a>
     </form>
+
+    <a href="{{ route('tasks.index') }}" class="btn btn-secondary">Назад к списку задач</a>
+</div>
 @endsection

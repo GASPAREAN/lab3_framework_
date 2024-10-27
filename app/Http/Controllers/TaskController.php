@@ -4,6 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
+use App\Models\Task;
+use App\Models\Category;
+use App\Models\Tag;
+
 class TaskController extends Controller
 {
     // Массив с мок-данными задач
@@ -42,84 +46,105 @@ class TaskController extends Controller
             'assigned_to' => 'User C', // New field for user assignment
         ],
     ];
-    
 
 
     public function index()
     {
-        // Передаем мок-данные во view
-        $tasks = $this->tasks;
+        $tasks = Task::with(['category', 'tags'])->get();
         return view('tasks.index', compact('tasks'));
     }
 
-    public function create()
-    {
-        return view('tasks.create');
-    }
+  public function create()
+  {
+      $categories = Category::all();
+      $tags = Tag::all();
 
-  
+      return view('tasks.create', compact('categories', 'tags'));
+  }
+
+
+
     public function store(Request $request)
     {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'category_id' => 'required|exists:categories,id',
+            'tags' => 'array',
+            'tags.*' => 'exists:tags,id'
+        ]);
 
-        $newTask = [
-            'id' => count($this->tasks) + 1,
+        $task = Task::create([
             'title' => $request->input('title'),
             'description' => $request->input('description'),
-            'is_completed' => false,
-        ];
+            'category_id' => $request->input('category_id'),
+            'status' => 'new',
+            'priority' => 'normal',
+            'assignee' => null
+        ]);
 
-    
-        $this->tasks[$newTask['id']] = $newTask;
+        if ($request->has('tags')) {
+            $task->tags()->attach($request->input('tags'));
+        }
 
-       
         return redirect()->route('tasks.index')->with('success', 'Задача успешно создана!');
     }
 
+
     public function show($id)
     {
-        if (isset($this->tasks[$id])) {
-            $task = $this->tasks[$id];
-            return view('tasks.show', compact('task'));
+        $task = Task::with(['category', 'tags'])->find($id);
+
+        if (!$task) {
+            abort(404, 'Задача не найдена.');
         }
 
-  
-        abort(404, 'Задача не найдена.');
+        return view('tasks.show', compact('task'));
     }
 
 
     public function edit($id)
     {
-        if (isset($this->tasks[$id])) {
-            $task = $this->tasks[$id];
-            return view('tasks.edit', compact('task'));
-        }
+        $task = Task::with(['category', 'tags'])->findOrFail($id);
 
-        abort(404, 'Задача не найдена.');
+        $categories = Category::all();
+        $tags = Tag::all();
+
+        return view('tasks.edit', compact('task', 'categories', 'tags'));
     }
+
 
 
     public function update(Request $request, $id)
     {
-        if (isset($this->tasks[$id])) {
-            $this->tasks[$id]['title'] = $request->input('title');
-            $this->tasks[$id]['description'] = $request->input('description');
-            $this->tasks[$id]['is_completed'] = $request->input('is_completed', false);
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'category_id' => 'required|exists:categories,id',
+            'tags' => 'array',
+            'tags.*' => 'exists:tags,id'
+        ]);
 
-            return redirect()->route('tasks.index')->with('success', 'Задача успешно обновлена!');
-        }
+        // Найти задачу и обновить её
+        $task = Task::findOrFail($id);
+        $task->update([
+            'title' => $request->input('title'),
+            'description' => $request->input('description', ''),
+            'category_id' => $request->input('category_id'),
+        ]);
 
-        abort(404, 'Задача не найдена.');
+        $task->tags()->sync($request->input('tags', []));
+
+        return redirect()->route('tasks.index')->with('success', 'Задача успешно обновлена!');
     }
-
 
     public function destroy($id)
     {
-        if (isset($this->tasks[$id])) {
-            unset($this->tasks[$id]);
 
-            return redirect()->route('tasks.index')->with('success', 'Задача успешно удалена!');
-        }
+        $task = Task::findOrFail($id);
+        $task->delete();
 
-        abort(404, 'Задача не найдена.');
+        return redirect()->route('tasks.index')->with('success', 'Задача успешно удалена!');
     }
+
 }

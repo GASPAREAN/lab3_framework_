@@ -1,4 +1,3 @@
-
 @props(['title', 'description', 'createdAt', 'updatedAt', 'status', 'priority', 'assignee'])
 
 <div class="task">

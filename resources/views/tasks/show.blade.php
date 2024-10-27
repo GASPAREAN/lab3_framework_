@@ -1,45 +1,38 @@
 @extends('layouts.app')
 
 @section('content')
-    <h1>{{ $task['title'] }}</h1>
+<div class="container">
+    <h1>Задача: {{ $task->title }}</h1>
 
-    <p>{{ $task['description'] }}</p>
+    <x-task
+        :title="$task->title"
+        :description="$task->description"
+        :createdAt="$task->created_at"
+        :updatedAt="$task->updated_at"
+        :status="$task->status"
+        :priority="$task->priority"
+        :assignee="$task->assignee"
+    />
 
-    <p>
-        <strong>Статус: </strong>
-        @if($task['is_completed'])
-            Завершено
+    <div>
+        <strong>Категория:</strong> {{ $task->category->name ?? 'Без категории' }}<br>
+        <strong>Теги:</strong>
+        @if($task->tags->isEmpty())
+            Нет тегов
         @else
-            Не завершено
+            @foreach($task->tags as $tag)
+                <span class="badge badge-info">{{ $tag->name }}</span>
+            @endforeach
         @endif
-    </p>
+    </div>
 
-    <p>
-        <strong>ID: </strong> {{ $task['id'] }}
-    </p>
-    <p>
-        <strong>Приоритет: </strong> {{ ucfirst($task['priority']) }} <!-- Displays priority, capitalized -->
-    </p>
-    <p>
-        <strong>Срок выполнения: </strong> {{ $task['due_date'] }} <!-- Displays due date -->
-    </p>
-    <p>
-        <strong>Создано: </strong> {{ $task['created_at'] }} <!-- Displays creation date -->
-    </p>
-    <p>
-        <strong>Обновлено: </strong> {{ $task['updated_at'] }} <!-- Displays last updated date -->
-    </p>
-    <p>
-        <strong>Ответственный: </strong> {{ $task['assigned_to'] }} <!-- Displays the assigned user -->
-    </p>
-
-    <a href="{{ route('tasks.edit', $task['id']) }}" class="btn btn-primary">Редактировать</a>
-
-    <form action="{{ route('tasks.destroy', $task['id']) }}" method="POST" style="display:inline;">
-        @csrf
-        @method('DELETE')
-        <button type="submit" class="btn btn-danger" onclick="return confirm('Вы уверены?')">Удалить</button>
-    </form>
-
-    <a href="{{ route('tasks.index') }}" class="btn btn-secondary">Назад к списку задач</a>
+    <nav>
+        <ul>
+            <li><a href="{{ route('tasks.index') }}">Список задач</a></li>
+            <li><a href="{{ route('tasks.edit', $task->id) }}">Редактировать задачу</a></li>
+            <li><a href="{{ route('home') }}">На главную</a></li>
+            <li><a href="{{ route('about') }}">О нас</a></li>
+        </ul>
+    </nav>
+</div>
 @endsection
